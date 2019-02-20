@@ -323,7 +323,7 @@
 			"PassNadir": "PassNadir",
 			"PassCount": "PassCount",
 			"Filter Ratio": "Filterverhouding",
-			"Calibration": "Kalibratie",	
+			"Calibration": "Kalibratie",
 			"Power on a VTx at the same frequency as the node": "Plug een VTx in op het zelfde kanaal als de node",
 			"Pass VTx very near the timer to establish peak RSSI for node": "Ga met de VTx langs de timer om de RSSI piek vast te leggen",
 			"Place VTx 5-10 feet away and press \"Capture\" for EnterAt": "Plaats de VTx 1,5-3 meter weg van de timer en klik op \"Vastleggen\" voor EnterAt",
