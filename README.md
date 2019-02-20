@@ -1,23 +1,51 @@
-# Delta 5 Race Timer
+![RotorHazard Logo](/src/server/static/image/RotorHazard%20Logo.svg)
 
-<img src="doc/img/delta5racetimer.jpg" align="right" alt="Delta5 Race Timer"/>
+# RotorHazard
+FPV Race Timing and Event Management
 
-Multi-node radio frequency race timing system for FPV drone racing. Uses the 5.8Ghz video signals already being broadcast by each drones to trigger a lap timer; no additional equipment is required on the drone.
+A multi-node radio frequency race timing system for FPV drone racing, with event management. Uses 5.8GHz video signals broadcast by drones to trigger lap times. Each node listens on a specified frequency and communicates times to a central server (raspberry pi). The server manages a front-end interface, which any device on the same network can connect to via web browser.
 
-Each receiver node is tuned to the video frequency that a drone is broadcasting on and then connected to a raspberry pi. By default, up to eight racing drones can be tracked in a race.
+RotorHazard builds on the [Delta5 Race Timer](https://github.com/scottgchin/delta5_race_timer), and supports up to 8 nodes.
 
-### Major Features
-* The system hosts its own web server which is used to control the system, no additional software is needed, any device with a web browser can connect
-* Automatic calibration; the system sets triggers at the start of each race
-* Manage pilot names, assign them to heats, and after each race save the results to a local database
-* Supports the standard 40 FPV video channels
+## Major Features
+* Timing and event management on the same hardware
+* Modern, mobile-friendly, and highly responsive user interface
+* Manage pilots, heats, race classes, race formats, and tuning profiles
+* LED and audio support to indicate race staging, starts, and other events
+* Real-time statistics and race history
+* Fine control of filtering and calibration allows indoor and outdoor use, even in difficult multipathing environments
+* Supports all frequencies in the 5.8GHz band
+* Includes basic support for Team racing and most-laps-wins races
 
-### Hardware and Software Setup
-To build the system, follow the instructions here: [/doc/Hardware and Software Setup Instructions.md](/doc/Hardware%20and%20Software%20Setup%20Instructions.md)
+## Hardware and Software Setup
+To build and configure the system, follow the instructions here:  
+[doc/Hardware Setup.md](doc/Hardware%20Setup.md)  
+[doc/Software Setup.md](doc/Software%20Setup.md)
 
-### User Guide
-For initial setup and running races, follow these instructions: [/doc/User Guide.md](/doc/User%20Guide.md)
+## User Guide
+For initial setup and running races, follow these instructions: [doc/User Guide.md](doc/User%20Guide.md)
 
-### Support
-Have questions? Comments? Join us at the Delta 5 Race Timer Facebook Group page and we'll try to help troubleshoot.
-https://www.facebook.com/groups/Delta5RaceTimer/
+## Migrating from/to Delta5
+RotorHazard uses the same hardware, but different code for the nodes. Re-flash your Arduinos as in the [setup instructions](doc/Software%20Setup.md#receiver-nodes-arduinos) whenever you switch between the two projects.
+
+## Contributors
+* Michael Niggel
+* Eric Thomas
+* Klaus Michael Schneider
+* Scott Chin and other [Delta5](https://github.com/scottgchin/delta5_race_timer) Contributors
+
+### Supported by:
+[![Propwashed Logo](doc/img/Propwashed-Logo-200w.png)](https://propwashed.com)
+
+### Translators
+* Dutch: Kenny Van Der Sypt
+* German: Klaus Michael Schneider
+* Spanish: Ramon Hernandez Roldan
+
+## Feedback
+
+Discuss RotorHazard on Facebook:  https://www.facebook.com/groups/rotorhazard
+
+To report bugs or request features, please post a GitHub issue [here](https://github.com/RotorHazard/RotorHazard/issues).
+
+Community contributions are welcome and encouraged; see the [Development.md](doc/Development.md) doc for more info.

@@ -1,31 +1,76 @@
-# Auto Calibration and Sensor Tuning Parameters
+# Calibration and Sensor Tuning Parameters
 
-The Delta5 Race Timer will auto-calibrate trigger values for the nodes during the first pass of the timing gate after starting each new race.
+The RotorHazard timing system allows you to calibrate each node individually, so that you can compensate for the behavior and hardware differences across your system and environment.
 
-In order for auto-calibration to work, the system has to make a guess about when a quad passes the gate the first time. In theory, the RSSI will go up as you approach the timing gate and then fall as you travel away from it. In practice, there is a lot of noise and the value oscillates quite a bit.
+Each node keeps track of the signal strength (RSSI) on a provided frequency, and uses the relative strength to determine its position relative to the start/finish gate. A node can be *crossing* or *clear*. If a node is *clear*, the system believes the quad is not near the start/finish gate. If it is *crossing*, the system believes the quad is passing by the start/finish gate and a lap pass will be recorded once the *crossing* is finished.
 
-Auto-calibration works best with the launch pads and start gate positioned in the middle of a straight away. You want a clean rise and fall of the RSSI value for the first pass and for each lap after.
+## Parameters
+Parameters that affect the *crossing* status are *EnterAt*, *ExitAt*, and *RSSI Smoothing*.
 
-### First Pass
-To help with this explanation we're going to use some example values talking about one quad passing the gate. Let's assume that with the quad powered off the sensor is getting a background RSSI value of 100. With the quad powered and on the launch pad some distance away the RSSI is 150.
+### EnterAt
+The system will consider a quad to be *crossing* once the RSSI raises to or above this level.
 
-After the race start button is pressed and the quad starts moving towards the gate, the RSSI value will begin to increase from its initial value of 150. Eventually the quad passes the gate and the RSSI value starts to fall, let's say the Peak RSSI seen was 300. The trigger is set during this pass by subtracting the Calibration Offset (8) from the Peak RSSI (300), so the Trigger will be 292.
+### ExitAt
+The system will consider a quad to have finished *crossing* once the RSSI value drops below this level.
 
-Now the system is waiting to detect when the quad has left the starting gate to confirm the Peak RSSI and Trigger values detected. It waits for the RSSI value to fall below the Trigger (292) minus Calibration Threshold (95) which is 197. Once the RSSI has dropped below 197 the system considers the first pass to be complete.
+### RSSI Smoothing
+Adjusts the filtering on the RSSI value, to reduce noise. Less noise creates cleaner data that triggers more easily, but delays the response time of a node. Too much smoothing could prevent high-speed passes from being recorded. Apply higher smoothing indoors.
 
-### Future Passes
+## Tuning
+Before during any of the other tuning procedures:
 
-The system is now waiting for the RSSI to rise above the Trigger value of 292 again. Once this happens it will consider the next gate pass to be happening. It will keep track of the Peak RSSI value seen and the time it happened, and continue to do so until the RSSI value falls below Trigger (292) minus Trigger Threshold (40) which is 252. Once the RSSI has dropped below 252, that gate pass is complete and the lap information is sent to the Raspberry Pi.
+1. Power up the timer and keep it running for a few minutes to allow its modules to warm up. (The RSSI values tend to increase by a few points as the timer heats up.)
 
-Note that the passing time is taken when the RSSI has reached it peak (when the quad should be closest to the sensor). Even if larger threshold values cause there to be a delay in the lap being reported, the timing information will sill be correct.
+2. Power up a quad and bring it very close to the timer for a few seconds. This will allow the timer to capture the peak-RSSI value for that node. This should be done for any node/channel that is being tuned.
 
-### Tuning
+The *Capture* buttons may be used to store the current RSSI reading as the EnterAt or ExitAt value for that node. The values may also be entered and adjusted manually.
 
-##### Calibration Offset
-If you are missing some passes, it means the Calibration Offset value is too small and the quad is not reaching as high a peak RSSI value as was seen on the first pass. Increase Calibration Offset to ensure all laps are captured.
+### Set the *EnterAt* value:
+* High enough that it is only reached when the quad is near the start/finish gate.
+* Not so high that a quad cannot reach it as it approaches the start/finish gate.
+* Higher than *ExitAt*.
 
-##### Calibration Threshold
-Adds a buffer around the fluctuating RSSI value during the first pass. Increase the value if you are getting lower than expected trigger values because the fist pass has been triggered before actually crossing the gate. If you are not getting a pass record for the fist pass (and likely ever), decrease this value. A relatively large value is needed to avoid false positives because of noise in the RSSI signal.
+A good starting point is to capture the EnterAt value with a quad about 5–10 feet away from the timer. If gate crossings are being missed then lower this value. If gate crossing are triggered when they shouldn't be then increase this value.
 
-##### Trigger Threshold
-Increase this value if you get several pass records while passing the start gate. Lower this value if the quad has to travel very far before a passing event is triggered.
+### Set the *ExitAt* value:
+* Low enough that RSSI noise during a gate pass does not trigger multiple *crossings*.
+* High enough that that the quad will always drop below the value at some point on the course. (The lowest value recorded since the last pass is displayed as the *Nadir*.)
+* Lower than *EnterAt*.
+
+A good starting point is to capture the ExitAt value with a quad about 20–30 feet away from the timer. If a pass by the timer is resulting in multiple crossings, try lowering this value. If the 'Crossing' indicator is stuck on, try increasing this value.
+
+If crossings are still erratic, increase *RSSI Smoothing* to reduce noise. (A smoothing value of 0.001 has been found to work well in indoor environments.) Placing a metal shield around the back of the timer can help.
+
+### Sample RSSI Graph:
+
+![Sample RSSI Graph](img/Sample%20RSSI%20Graph.svg)
+
+## Notes
+* Try to keep *EnterAt* and *ExitAt* further apart than the size of noise spikes/dips.
+* Dropping below the *EnterAt* value during a pass is fine, as long as the level stays above *ExitAt*.
+* Spiking above *ExitAt* after a pass is fine, as long as the spike doesn't reach *EnterAt*.
+* Increase *RSSI Smoothing* to reduce the amount of noise.
+* A very low *ExitAt* value (but above the *Nadir*) will still work, but the system will wait until it is reached before announcing laps.
+* Actual timing uses raw RSSI values collected within the *crossing* window, irrespective of *Smoothing*. Heavy smoothing does not affect lap times, but could prevent high-speed passes from registering as *crossing*.
+* The *Minimum Lap Time* setting can be used to prevent extra passes, but might mask *crossings* that are triggered too early.
+
+## Troubleshooting
+Laps registering on other parts of a course: 
+* Raise *EnterAt* until *crossings* only begin near the start/finish gate
+
+Many laps registering at once:
+* Raise *EnterAt*, if possible
+* Lower *ExitAt*, 
+* Increase *RSSI Smoothing*
+
+Laps taking a long time to register:
+* Raise *ExitAt*
+
+Node is never *crossing*:
+* Lower *EnterAt*
+
+Node is never *clear*:
+* Raise *ExitAt*
+
+Missing high-speed passes:
+* Decrease *RSSI Smoothing*
